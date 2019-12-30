@@ -86,6 +86,14 @@ public class TestCase {
 	    myObject.setTarget("00".getBytes());
 	    value = myObject.estimation();
 	    System.out.println(">00 "+value);
+		//when return 0.0
+		myObject.setTarget("".getBytes());
+		value = myObject.estimation();
+		System.out.println(value);
+		//when return Double.MAX_VALUE
+		myObject.setSpace("".getBytes());
+		value = myObject.estimation();
+		System.out.println(value);
 	}
 	catch(Exception e) {
 	    System.out.println("Exception occurred: STOP");
