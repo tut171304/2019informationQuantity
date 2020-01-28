@@ -14,12 +14,16 @@ public interface InformationEstimatorInterface{
 // Otherwise, estimation of information quantity, 
 }                        
 */
+/*計算するときにIq(a)もIq(ab)もIq(abc)もすべて必要
+必要なintの情報は先頭から何文字かという情報のみ　それをdouble配列に渡す
+最初に計算して記憶しておき、後は取り出すだけ*/ 
 
 public class InformationEstimator implements InformationEstimatorInterface{
     // Code to tet, *warning: This code condtains intentional problem*
     byte [] myTarget; // data to compute its information quantity
     byte [] mySpace;  // Sample space to compute the probability
     FrequencerInterface myFrequencer;  // Object for counting frequency
+	double [] dp = null;		//計算しておいたIqを格納しておく配列
 
     byte [] subBytes(byte [] x, int start, int end) {
 	// corresponding to substring of String for  byte[] ,
@@ -34,14 +38,55 @@ public class InformationEstimator implements InformationEstimatorInterface{
 	return  - Math.log10((double) freq / (double) mySpace.length)/ Math.log10((double) 2.0);
     }
 
-    public void setTarget(byte [] target) { myTarget = target;}
+    public void setTarget(byte [] target) 
+	{
+		myTarget = target;
+		myFrequencer.setTarget(target);
+		dp = null;
+	}
     public void setSpace(byte []space) { 
 	myFrequencer = new Frequencer();
 	mySpace = space; myFrequencer.setSpace(space); 
     }
+/*
+	public double min(double [] d){
+		double min = d[0];
+		for(int i = 1; i < d.length; i++){
+			if(min > d[i]){
+				min = d[i];
+			}
+		}
+		return min;
+		
+	}*/
+	
 
     public double estimation(){
-	boolean [] partition = new boolean[myTarget.length+1];
+		if (dp == null) {
+			dp = new double[myTarget.length];
+			for(int i = 1; i <= dp.length; i++){	
+				double min = iq(myFrequencer.subByteFrequency(0, i));
+				for (int k = 1; k < i; k++) {
+					double tmp = dp[k -1] + iq(myFrequencer.subByteFrequency(k, i));
+					if (min > tmp) {
+						min = tmp;
+					}
+				}
+				dp[i - 1] = min;
+				/*
+				dp[i] = min(
+					iq(myFrequencer.subByteFrequency(0, i)),
+					dp[1] + iq(1, i),
+					dp[2] + iq(2, i),
+					dp[3] + iq(3, i),
+					...,
+					dp[myTarget.length - 1] + iq(myTarget.length - 1, i));
+				*/
+			}
+		}
+		return dp[myTarget.length - 1];
+
+	/*boolean [] partition = new boolean[myTarget.length+1];
 	int np;
 	np = 1<<(myTarget.length-1);
 	// System.out.println("np="+np+" length="+myTarget.length);
@@ -80,7 +125,7 @@ public class InformationEstimator implements InformationEstimatorInterface{
 	    // Get the minimal value in "value"
 	    if(value1 < value) value = value1;
 	}
-	return value;
+	return value;*/
     }
 
     public static void main(String[] args) {
