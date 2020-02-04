@@ -94,6 +94,38 @@ public class Frequencer implements FrequencerInterface{
 		return 2;
     }
 
+    void sort(int []array){     //クイックソート
+        partition(array, 0, array.length - 1);
+    }
+
+    
+
+    void partition(int []array, int left, int right){      //クイックソートのための分割
+        int pivot = array[(left + right) / 2];
+        int i = left;
+        int j = right;
+
+        while(i <= j){
+            while(suffixCompare(array[i], pivot) < 0){
+                i++;
+            }
+            while(suffixCompare(array[j], pivot) > 0){
+                j--;
+            }
+            if(i <= j){
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+                i++;
+                j--;
+            }
+        }
+        if(left < j)
+            partition(array, left, j);
+        if(i < right)
+            partition(array, i, right);
+    }
+
     public void setSpace(byte []space) { 
         // suffixArrayの前処理は、setSpaceで定義せよ。
         mySpace = space; if(mySpace.length>0) spaceReady = true;
@@ -101,8 +133,9 @@ public class Frequencer implements FrequencerInterface{
         suffixArray = new int[space.length];
         // put all suffixes in suffixArray.
         for(int i = 0; i< space.length; i++) {
-            suffixArray[i] = i; // Please note that each suffix is expressed by one integer.      
+            suffixArray[i] = i; // Please note that each suffix is expressed by one integer.
         }
+        
         //                                            
         // ここに、int suffixArrayをソートするコードを書け。
         // 　順番はsuffixCompareで定義されるものとする。
@@ -122,7 +155,9 @@ public class Frequencer implements FrequencerInterface{
             SortedSuffixArray[j] = S;
             SortedSuffixArraySize++;
         }
+        
         suffixArray = SortedSuffixArray;    //元の配列に戻す
+        //sort(suffixArray);
     }
 
     // Suffix Arrayを用いて、文字列の頻度を求めるコード
@@ -159,6 +194,7 @@ public class Frequencer implements FrequencerInterface{
     // 変更してはいけないコードはここまで。
 
     private int targetCompare(int i, int j, int k) {
+        
         // suffixArrayを探索するときに使う比較関数。
         // 次のように定義せよ
         // suffix_i is a string in mySpace starting at i-th position.
